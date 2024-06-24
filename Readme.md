@@ -36,14 +36,10 @@ To run the AllCaps project locally,make sure  go1.22.4 is installed and then fol
 ## Usage
 Once the application is running, you can use the provided endpoints to interact with the system. Here are some example API calls:
 
-### Book a Class
+**Book a Class,Cancel booking and Add User**
 ```bash
 curl -X POST http://localhost:8080/book -H "Content-Type: application/json" -d '{"user_id": "USER_ID", "class_id": CLASS_ID}'
-
-### Cancel booking 
-```bash
 curl -X POST http://localhost:8080/book -H "Content-Type: application/json" -d '{"user_id": "USER_ID", "class_id": CLASS_ID}'
-
-### Add User
-```bash
 curl -X POST http://localhost:8080/add_user -H "Content-Type: application/json" -d '{"name": "USER_NAME"}'
+
+
