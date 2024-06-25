@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -24,7 +25,8 @@ func bookClassHandler(c *gin.Context) {
 
 	logger.Printf("Received booking request: UserID=%s, ClassID=%d", req.UserID, req.ClassID)
 
-	if err := bookClass(req.UserID, req.ClassID); err != nil {
+	class, err := bookClass(req.UserID, req.ClassID)
+	if err != nil {
 		if err.Error() == "class is full, added to waiting list" || err.Error() == "waitlist is full" {
 			c.JSON(http.StatusConflict, gin.H{"message": err.Error()})
 		} else if err.Error() == "user not found" || err.Error() == "class not found" {
@@ -33,7 +35,11 @@ func bookClassHandler(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		}
 	} else {
-		c.JSON(http.StatusOK, gin.H{"message": "Booking successful"})
+		c.JSON(http.StatusOK, gin.H{
+			"message":  "Booking successful",
+			"class_id": class.ID,
+			"time":     class.StartTime.Format(time.RFC3339),
+		})
 	}
 }
 

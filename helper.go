@@ -8,8 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func bookClass(userID uuid.UUID, classID int) error {
-
+func bookClass(userID uuid.UUID, classID int) (Class, error) {
 	classesMutex.Lock()
 	defer classesMutex.Unlock()
 	usersMutex.RLock()
@@ -22,19 +21,19 @@ func bookClass(userID uuid.UUID, classID int) error {
 	class, exists := classes[classID]
 	if !exists {
 		logger.Printf("Class not found: ClassID=%d", classID)
-		return errors.New("class not found")
+		return Class{}, errors.New("class not found")
 	}
 
 	if _, exists := users[userID]; !exists {
 		logger.Printf("User not found: UserID=%s", userID)
-		return errors.New("user not found")
+		return Class{}, errors.New("user not found")
 	}
 
 	// Check if the user has already booked this class
 	for _, booking := range bookings[classID] {
 		if booking.UserID == userID {
 			logger.Printf("User already booked this class: UserID=%s, ClassID=%d", userID, classID)
-			return errors.New("user has already booked this class")
+			return Class{}, errors.New("user has already booked this class")
 		}
 	}
 
@@ -45,7 +44,7 @@ func bookClass(userID uuid.UUID, classID int) error {
 				otherClass := classes[booking.ClassID]
 				if otherClass.StartTime.Equal(class.StartTime) {
 					logger.Printf("User has already booked another class in the same time slot: UserID=%s, ClassID=%d, OtherClassID=%d", userID, classID, booking.ClassID)
-					return fmt.Errorf("user has already booked another class (%s) in this time slot", otherClass.Type)
+					return Class{}, fmt.Errorf("user has already booked another class (%s) in this time slot", otherClass.Type)
 				}
 			}
 		}
@@ -55,16 +54,16 @@ func bookClass(userID uuid.UUID, classID int) error {
 		// Check if the waitlist has reached the capacity of the class
 		if len(waitingList[classID]) >= class.Capacity {
 			logger.Printf("Waitlist is full: ClassID=%d", classID)
-			return errors.New("waitlist is full")
+			return Class{}, errors.New("waitlist is full")
 		}
 		waitingList[classID] = append(waitingList[classID], WaitingList{UserID: userID, ClassID: classID})
 		logger.Printf("Class at capacity, added user %s to waiting list for class %d", userID, classID)
-		return errors.New("class is full, added to waiting list")
+		return Class{}, errors.New("class is full, added to waiting list")
 	}
 
 	bookings[classID] = append(bookings[classID], Booking{UserID: userID, ClassID: classID})
 	logger.Printf("Booked class %d for user %s", classID, userID)
-	return nil
+	return class, nil
 }
 
 func cancelBooking(userID uuid.UUID, classID int) error {
