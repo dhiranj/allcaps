@@ -38,8 +38,9 @@ Once the application is running, you can use the provided endpoints to interact 
 
 **Book a Class,Cancel booking and Add User**
 ```bash
-curl -X POST http://localhost:8080/book -H "Content-Type: application/json" -d '{"user_id": "USER_ID", "class_id": CLASS_ID}'
-curl -X POST http://localhost:8080/book -H "Content-Type: application/json" -d '{"user_id": "USER_ID", "class_id": CLASS_ID}'
-curl -X POST http://localhost:8080/add_user -H "Content-Type: application/json" -d '{"name": "USER_NAME"}'
+curl -X POST http://localhost:8080/add_user -H "Content-Type: application/json" -d '{"name": "John Doe"}'
+curl -X POST http://localhost:8080/book -H "Content-Type: application/json" -d '{"user_id": "user-uuid-here", "class_id": 1}'
+curl -X POST http://localhost:8080/cancel -H "Content-Type: application/json" -d '{"user_id": "user-uuid-here", "class_id": 1}'
+
 
 
